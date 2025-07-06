@@ -1,12 +1,16 @@
 'use client'
 
 import supabase from '@/utils/supabaseClient'
-
 export default function LoginPage() {
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google'
+      provider: 'google',
+      options: {
+        // redirectTo: 'https://sup-x-pense.vercel.app/choose-username'
+        redirectTo: 'http://localhost:3000/choose-username'
+      }
     })
+
     if (error) {
       console.error('Login error:', error.message)
     }
