@@ -101,6 +101,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-6">
+      <button
+        className="bg-purple-600 text-white px-4 py-2 rounded mb-4 self-end"
+        onClick={() => router.push('/view-stats', { state: { username } })}
+      >
+        View Stats
+      </button>
       <h1 className="text-2xl font-bold mb-2">Welcome, {username}</h1>
       <p className="mb-6">Your transactions this <strong>{currentMonth}</strong></p>
 
@@ -114,8 +120,9 @@ export default function Dashboard() {
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3">
               <option value="">Select category</option>
               <option value="Food">Food</option>
-              <option value="Auto">Auto</option>
+              <option value="Cab">Cab</option>
               <option value="Gift">Gift</option>
+              <option value="Petrol">Petrol</option>
               <option value="Misc">Misc</option>
             </select>
           </label>
@@ -147,8 +154,9 @@ export default function Dashboard() {
             <select value={loanCategory} onChange={(e) => setLoanCategory(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3">
               <option value="">Select category</option>
               <option value="Food">Food</option>
-              <option value="Auto">Auto</option>
+              <option value="Cab">Cab</option>
               <option value="Gift">Gift</option>
+              <option value="Petrol">Petrol</option>
               <option value="Misc">Misc</option>
             </select>
           </label>

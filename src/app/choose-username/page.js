@@ -19,12 +19,14 @@ export default function ChooseUsername() {
       return
     }
 
+    console.log(user.id);
     const { error: insertError } = await supabase.from('profiles').insert({
       id: user.id,
       username: username.trim()
     })
 
     if (insertError) {
+      console.log(insertError);
       setError('Username already taken or error saving.')
       return
     }
