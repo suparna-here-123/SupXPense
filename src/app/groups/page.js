@@ -156,70 +156,75 @@ export default function GroupsPage() {
         fetchGroups();
     }, []);
 
+
     return (
         <div className="p-6">
-            {/* Add Members Dialog */}
+            {/* Add Members Dialog (DaisyUI modal) */}
             {showAddMembersDialog && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-                    <div className="bg-black p-6 rounded shadow-lg w-full max-w-md">
-                        <h2 className="text-xl font-semibold mb-4">Add Members</h2>
-                        <label className="block mb-2">Select User:</label>
-                        <div className="flex gap-2 mb-2">
-                            <select
-                                className="flex-1 border p-2 rounded"
-                                value=""
-                                onChange={e => {
-                                    if (e.target.value) handleAddUserToSelection(e.target.value);
-                                }}
-                            >
-                                <option value="">Select user</option>
-                                {otherUsers.filter(u => !selectedUsers.includes(u.username)).map(u => (
-                                    <option key={u.username} value={u.username}>{u.username}</option>
+                <dialog open className="modal modal-open">
+                    <div className="modal-box bg-base-200">
+                        <h2 className="font-bold text-lg mb-4">Add Members</h2>
+                        <form method="dialog" className="form-control gap-2">
+                            <label className="label">Select User:</label>
+                            <div className="flex gap-2 mb-2">
+                                <select
+                                    className="select select-bordered w-full"
+                                    value=""
+                                    onChange={e => {
+                                        if (e.target.value) handleAddUserToSelection(e.target.value);
+                                    }}
+                                >
+                                    <option value="">Select user</option>
+                                    {otherUsers.filter(u => !selectedUsers.includes(u.username)).map(u => (
+                                        <option key={u.username} value={u.username}>{u.username}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    onClick={() => {
+                                        const select = document.querySelector('select');
+                                        if (select && select.value) handleAddUserToSelection(select.value);
+                                    }}
+                                    disabled={addMembersLoading}
+                                >+
+                                </button>
+                            </div>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {selectedUsers.map(user => (
+                                    <span key={user} className="badge badge-outline flex items-center gap-1">
+                                        {user}
+                                        <button
+                                            type="button"
+                                            className="btn btn-xs btn-circle btn-ghost text-error"
+                                            onClick={() => handleRemoveUserFromSelection(user)}
+                                            disabled={addMembersLoading}
+                                        >✕</button>
+                                    </span>
                                 ))}
-                            </select>
-                            <button
-                                type="button"
-                                className="bg-green-600 text-white px-3 py-1 rounded"
-                                onClick={() => {
-                                    const select = document.querySelector('select');
-                                    if (select && select.value) handleAddUserToSelection(select.value);
-                                }}
-                                disabled={addMembersLoading}
-                            >+
-                            </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                            {selectedUsers.map(user => (
-                                <span key={user} className="bg-gray-200 px-2 py-1 rounded flex items-center">
-                                    {user}
-                                    <button
-                                        type="button"
-                                        className="ml-1 text-red-500 hover:text-red-700"
-                                        onClick={() => handleRemoveUserFromSelection(user)}
-                                        disabled={addMembersLoading}
-                                    >-</button>
-                                </span>
-                            ))}
-                        </div>
-                        <div className="flex justify-end gap-2">
-                            <button
-                                className="px-4 py-2 rounded border"
-                                onClick={() => setShowAddMembersDialog(false)}
-                                disabled={addMembersLoading}
-                            >Cancel</button>
-                            <button
-                                className="bg-blue-600 text-white px-4 py-2 rounded"
-                                onClick={handleAddMembersSubmit}
-                                disabled={addMembersLoading || selectedUsers.length === 0}
-                            >{addMembersLoading ? 'Adding...' : 'Add members'}</button>
-                        </div>
+                            </div>
+                            <div className="modal-action flex gap-2">
+                                <button
+                                    type="button"
+                                    className="btn"
+                                    onClick={() => setShowAddMembersDialog(false)}
+                                    disabled={addMembersLoading}
+                                >Cancel</button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleAddMembersSubmit}
+                                    disabled={addMembersLoading || selectedUsers.length === 0}
+                                >{addMembersLoading ? 'Adding...' : 'Add members'}</button>
+                            </div>
+                        </form>
                     </div>
-                </div>
+                </dialog>
             )}
 
         <h1 className="text-2xl font-bold mb-4">{username}'s Groups</h1>
         <button
-            className="bg-blue-600 text-white px-4 py-2 rounded mb-6"
+            className="btn btn-primary mb-6"
             onClick={() => {
                 setShowDialog(true); 
                 fetchGroups();}}
@@ -228,65 +233,68 @@ export default function GroupsPage() {
         </button>
 
         {showDialog && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-                <div className="bg-black p-6 rounded shadow-lg w-full max-w-md">
-                    <h2 className="text-xl font-semibold mb-4">Create Group</h2>
-                    <label className="block mb-2">Group Name:
+            <dialog open className="modal modal-open">
+                <div className="modal-box bg-base-200">
+                    <h2 className="font-bold text-lg mb-4">Create Group</h2>
+                    <form method="dialog" className="form-control gap-2">
+                        <label className="label">Group Name:</label>
                         <input
                             type="text"
-                            className="w-full border p-2 rounded mt-1"
+                            className="input input-bordered w-full mb-2"
                             value={newGroupName}
                             onChange={e => setNewGroupName(e.target.value)}
                             disabled={creating}
                         />
-                    </label>
-                    <label className="block mb-2">Group Categories:</label>
-                    <div className="flex gap-2 mb-2">
-                        <input
-                            type="text"
-                            className="flex-1 border p-2 rounded"
-                            value={categoryInput}
-                            onChange={e => setCategoryInput(e.target.value)}
-                            onKeyDown={e => { if (e.key === '+') { e.preventDefault(); handleAddCategory(); } }}
-                            ref={categoryInputRef}
-                            disabled={creating}
-                            placeholder="Type category and press +"
-                        />
-                        <button
-                            type="button"
-                            className="bg-green-600 text-white px-3 py-1 rounded"
-                            onClick={handleAddCategory}
-                            disabled={creating}
-                        >+
-                        </button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                        {categories.map(cat => (
-                            <span key={cat} className="bg-gray-200 px-2 py-1 rounded flex items-center">
-                                {cat}
-                                <button
-                                    type="button"
-                                    className="ml-1 text-red-500 hover:text-red-700"
-                                    onClick={() => handleRemoveCategory(cat)}
-                                    disabled={creating}
-                                >×</button>
-                            </span>
-                        ))}
-                    </div>
-                    <div className="flex justify-end gap-2">
-                        <button
-                            className="px-4 py-2 rounded border"
-                            onClick={() => setShowDialog(false)}
-                            disabled={creating}
-                        >Cancel</button>
-                        <button
-                            className="bg-blue-600 text-white px-4 py-2 rounded"
-                            onClick={handleCreateGroup}
-                            disabled={creating || !newGroupName.trim() || categories.length === 0}
-                        >{creating ? 'Creating...' : 'Create'}</button>
-                    </div>
+                        <label className="label">Group Categories:</label>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                type="text"
+                                className="input input-bordered flex-1"
+                                value={categoryInput}
+                                onChange={e => setCategoryInput(e.target.value)}
+                                onKeyDown={e => { if (e.key === '+') { e.preventDefault(); handleAddCategory(); } }}
+                                ref={categoryInputRef}
+                                disabled={creating}
+                                placeholder="Type category and press +"
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-success"
+                                onClick={handleAddCategory}
+                                disabled={creating}
+                            >+
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            {categories.map(cat => (
+                                <span key={cat} className="badge badge-outline flex items-center gap-1">
+                                    {cat}
+                                    <button
+                                        type="button"
+                                        className="btn btn-xs btn-circle btn-ghost text-error"
+                                        onClick={() => handleRemoveCategory(cat)}
+                                        disabled={creating}
+                                    >✕</button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="modal-action flex gap-2">
+                            <button
+                                type="button"
+                                className="btn"
+                                onClick={() => setShowDialog(false)}
+                                disabled={creating}
+                            >Cancel</button>
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={handleCreateGroup}
+                                disabled={creating || !newGroupName.trim() || categories.length === 0}
+                            >{creating ? 'Creating...' : 'Create'}</button>
+                        </div>
+                    </form>
                 </div>
-            </div>
+            </dialog>
         )}
 
         {groupInfos.length === 0 ? (
@@ -294,24 +302,28 @@ export default function GroupsPage() {
         ) : (
             <ul className="space-y-4">
                 {groupInfos.map(group => (
-                    <li key={group.groupid} className="border rounded p-4">
-                        <div><strong>Group Name:</strong> {group.groupname}</div>
-                        <div><strong>Admin:</strong> {group.admin}</div>
-                        {/* <div><strong>Group ID:</strong> {group.groupid}</div> */}
-
-                        <button
-                            className="bg-purple-600 text-white px-4 py-2 rounded mb-2"
-                            onClick={() => addMembersToGroup(group.groupid)}>
-                            Add members
-                        </button>
-                        <button
-                            className="bg-blue-600 text-white px-4 py-2 rounded mb-2 ml-2"
-                            onClick={() => router.push(`/group-expense?groupid=${group.groupid}`)}>
-                            Add expense
-                        </button>
+                    <li key={group.groupid}>
+                        <div className="card bg-base-100 shadow-md">
+                            <div className="card-body p-4">
+                                <h3 className="card-title mb-2">{group.groupname}</h3>
+                                <p className="mb-2"><span className="font-semibold">Admin:</span> {group.admin}</p>
+                                {/* <div><strong>Group ID:</strong> {group.groupid}</div> */}
+                                <div className="flex gap-2">
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => addMembersToGroup(group.groupid)}>
+                                        Add members
+                                    </button>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => router.push(`/group-expense?groupid=${group.groupid}`)}>
+                                        Add expense
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </li>
-                ))
-                }
+                ))}
             </ul>
         )}
     </div>

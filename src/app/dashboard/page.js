@@ -107,31 +107,32 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-6">
-      <button
-        className="bg-purple-600 text-white px-4 py-2 rounded mb-4 self-end"
-        onClick={() => router.push('/view-stats', { state: { username } })}
-      >
-        View Stats
-      </button>
+      <div className="flex gap-2 mb-4 self-end">
+        <button
+          className="btn btn-secondary"
+          onClick={() => router.push('/view-stats', { state: { username } })}
+        >
+          View Stats
+        </button>
+        <button
+          className="btn btn-accent"
+          onClick={() => router.push('/groups', { state: { username } })}
+        >
+          My groups
+        </button>
+      </div>
 
-      <button
-        className="bg-green-600 text-white px-4 py-2 rounded mb-4 self-end"
-        onClick={() => router.push('/groups', { state: { username } })}
-      >
-        My groups
-      </button>
-
-      <h1 className="text-2xl font-bold mb-2">Welcome, {username}</h1>
+      <h1 className="text-3xl font-bold mb-2">Welcome, {username}</h1>
       <p className="mb-6">Your transactions this <strong>{currentMonth}</strong></p>
 
       <div className="flex flex-col md:flex-row gap-6 w-full max-w-4xl">
         {/* Personal Expense */}
-        <div className="flex-1 border p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-2">Personal Expense</h2>
+        <div className="flex-1 card bg-base-100 shadow-xl p-4">
+          <h2 className="card-title mb-2">Personal Expense</h2>
 
-          <label>
-            Category:
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3">
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Category</span>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="select select-bordered w-full mt-1">
               <option value="">Select category</option>
               <option value="Food">Food</option>
               <option value="Cab">Cab</option>
@@ -141,26 +142,26 @@ export default function Dashboard() {
             </select>
           </label>
 
-          <label>
-            Amount:
-            <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3" />
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Amount</span>
+            <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="input input-bordered w-full mt-1" />
           </label>
 
-          <label>
-            Comments:
-            <input type="text" value={persExpComments} onChange={(e) => setPersExpComments(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3" maxLength={50} />
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Comments</span>
+            <input type="text" value={persExpComments} onChange={(e) => setPersExpComments(e.target.value)} className="input input-bordered w-full mt-1" maxLength={50} />
           </label>
 
-          <button onClick={handlePersonalSave} className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+          <button onClick={handlePersonalSave} className="btn btn-primary w-full">Save</button>
         </div>
 
         {/* Loan/Debt Entry */}
-        <div className="flex-1 border p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-2">Loan / Debt</h2>
+        <div className="flex-1 card bg-base-100 shadow-xl p-4">
+          <h2 className="card-title mb-2">Loan / Debt</h2>
 
-          <label>
-            Borrower:
-            <select value={borrower} onChange={(e) => setBorrower(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3">
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Borrower</span>
+            <select value={borrower} onChange={(e) => setBorrower(e.target.value)} className="select select-bordered w-full mt-1">
               <option value="">Select user</option>
               {otherUsers.map(user => (
                 <option key={user.username} value={user.username}>{user.username}</option>
@@ -168,9 +169,9 @@ export default function Dashboard() {
             </select>
           </label>
 
-          <label>
-            Category:
-            <select value={loanCategory} onChange={(e) => setLoanCategory(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3">
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Category</span>
+            <select value={loanCategory} onChange={(e) => setLoanCategory(e.target.value)} className="select select-bordered w-full mt-1">
               <option value="">Select category</option>
               <option value="Food">Food</option>
               <option value="Cab">Cab</option>
@@ -180,22 +181,22 @@ export default function Dashboard() {
             </select>
           </label>
 
-          <label>
-            Amount:
-            <input type="number" step="0.01" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3" />
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Amount</span>
+            <input type="number" step="0.01" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} className="input input-bordered w-full mt-1" />
           </label>
 
-          <label>
-            Comments:
-            <input type="text" value={loanComments} onChange={(e) => setLoanComments(e.target.value)} className="w-full p-2 border rounded mt-1 mb-3" maxLength={50} />
+          <label className="form-control w-full mb-3">
+            <span className="label-text">Comments</span>
+            <input type="text" value={loanComments} onChange={(e) => setLoanComments(e.target.value)} className="input input-bordered w-full mt-1" maxLength={50} />
           </label>
 
-          <button onClick={handleLoanSave} className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+          <button onClick={handleLoanSave} className="btn btn-primary w-full">Save</button>
         </div>
       </div>
 
-      {successMsg && <p className="text-green-500 mt-4">{successMsg}</p>}
-      {errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
+      {successMsg && <p className="text-success mt-4">{successMsg}</p>}
+      {errorMsg && <p className="text-error mt-2">{errorMsg}</p>}
     </div>
   )
 }
