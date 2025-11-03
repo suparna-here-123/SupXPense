@@ -20,7 +20,7 @@ export default function RedirectPage() {
       }
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('users')
         .select('username')
         .eq('id', user.id)
         .single()

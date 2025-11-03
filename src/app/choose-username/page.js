@@ -6,6 +6,8 @@ import supabase from '@/utils/supabaseClient'
 
 export default function ChooseUsername() {
   const [username, setUsername] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [error, setError] = useState('')
   const router = useRouter()
 
@@ -18,15 +20,14 @@ export default function ChooseUsername() {
       setError('Not logged in.')
       return
     }
-
-    console.log(user.id);
-    const { error: insertError } = await supabase.from('profiles').insert({
+    const { error: insertError } = await supabase.from('users').insert({
       id: user.id,
-      username: username.trim()
+      username: username.trim(),
+      firstname : firstName,
+      lastname : lastName
     })
 
     if (insertError) {
-      console.log(insertError);
       setError('Username already taken or error saving.')
       return
     }
@@ -37,13 +38,26 @@ export default function ChooseUsername() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4">
-      <h1 className="text-2xl font-bold mb-6">Choose a username</h1>
+      <h1 className="text-2xl font-bold mb-6">Create a profile</h1>
       <input
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         className="border p-2 w-full max-w-sm mb-4 rounded"
-        placeholder="e.g. supra123"
+        placeholder="Your username e.g. suppra123"
       />
+      <input
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        className="border p-2 w-full max-w-sm mb-4 rounded"
+        placeholder="How to find you by first name? e.g. Suparna"
+      />
+      <input
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        className="border p-2 w-full max-w-sm mb-4 rounded"
+        placeholder="How to find you by last name? e.g. Prasad"
+      />
+
       <button
         onClick={handleSubmit}
         className="bg-blue-500 text-white px-4 py-2 rounded"
