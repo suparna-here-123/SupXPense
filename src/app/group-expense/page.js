@@ -17,6 +17,7 @@ export default function GroupExpensePage() {
     const [splitType, setSplitType] = useState('equal');
     const [unequalType, setUnequalType] = useState('%');
     const [comments, setComments] = useState('');
+    let defaultCats = ['Food', 'Beverage', 'Cab', 'Fuel', 'Misc'];
 
     // Placeholder for split logic
     const handleEqualSplit = async () => {
@@ -53,7 +54,8 @@ export default function GroupExpensePage() {
             .from('groupcategories')
             .select('groupcategory')
             .eq('groupid', groupid);
-        setExpenseCategories((cats || []).map(c => c.groupcategory));
+        
+        setExpenseCategories(defaultCats.concat(cats.map(c => c.groupcategory)));
 
         // Fetch group members
         const { data: members } = await supabase
@@ -91,22 +93,6 @@ export default function GroupExpensePage() {
                         ))}
                     </select>
                 </label>
-                <label className="block mb-2">Members:</label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                    {groupMembers.map(m => (
-                        <label key={m.username} className="flex items-center gap-1">
-                            <input
-                                type="checkbox"
-                                checked={selectedBorrowers.includes(m.username)}
-                                onChange={e => {
-                                    if (e.target.checked) setSelectedBorrowers([...selectedBorrowers, m.username]);
-                                    else setSelectedBorrowers(selectedBorrowers.filter(u => u !== m.username));
-                                }}
-                            />
-                            {m.username}
-                        </label>
-                    ))}
-                </div>
                 <label className="block mb-2">Split:</label>
                 <div className="flex gap-4 mb-2">
                     <label>
@@ -150,6 +136,26 @@ export default function GroupExpensePage() {
                         </label>
                     </div>
                 )}
+
+                <label className="block mb-2">Members:</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                    {groupMembers.map(m => (
+                        <label key={m.username} className="flex items-center gap-1">
+                            <input
+                                type="checkbox"
+                                checked={selectedBorrowers.includes(m.username)}
+                                onChange={e => {
+                                    if (e.target.checked) setSelectedBorrowers([...selectedBorrowers, m.username]);
+                                    else setSelectedBorrowers(selectedBorrowers.filter(u => u !== m.username));
+                                }}
+                            />
+                            {m.username}
+                        </label>
+                    ))}
+                </div>
+
+
+
 
                 <label>
                     Comments:
