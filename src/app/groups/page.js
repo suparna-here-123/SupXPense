@@ -60,7 +60,6 @@ export default function GroupsPage() {
             .select('groupid')
             .single();
         if (groupErr || !groupRows) {
-            console.log(groupErr)
             setCreating(false);
             alert('Failed to create group');
             return;
@@ -72,7 +71,6 @@ export default function GroupsPage() {
             .insert([{ groupid: groupid, username : username }])
 
         if (groupMemErr) {
-            console.log(groupMemErr)
             setCreating(false);
             alert('Failed to add group membership details');
             return;
@@ -104,11 +102,8 @@ export default function GroupsPage() {
             .select('groupid')
             .eq('username', username);
         if (error) {
-            console.log('error getting group IDs', error);
             return [];
-        }else {
-            console.log(data)
-        };
+        }
         return data.map(row => row.groupid);
     };
 

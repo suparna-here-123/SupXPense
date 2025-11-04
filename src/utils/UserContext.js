@@ -9,6 +9,9 @@ export const UserContext = createContext({
 
 export function UserProvider({ children }) {
 	const [username, setUsername] = useState('');
+	// const [currentMonth, setCurrentMonth] = useState(new Date().toLocaleString('default', { month: 'long' }));
+  	// const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
 	return (
 		<UserContext.Provider value={{ username, setUsername }}>
 			{children}

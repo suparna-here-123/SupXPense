@@ -76,6 +76,7 @@ export default function Dashboard() {
       setSuccessMsg('Expense saved!')
       setAmount('')
       setCategory('')
+      setPersExpComments('');
     }
   }
 
@@ -88,11 +89,12 @@ export default function Dashboard() {
     }
 
     const { error } = await supabase.from('loans').insert({
+      loanYear : currentYear,
+      loanMonth : currentMonth,
       lender: username,
       borrower : borrower,
       category: loanCategory,
       amount: parseFloat(loanAmount),
-      lenddate: new Date().toISOString().split('T')[0]
     })
 
     if (error) {
