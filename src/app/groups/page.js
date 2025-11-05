@@ -196,7 +196,7 @@ export default function GroupsPage() {
 
     useEffect(() => {
         fetchGroups();
-    }, []);
+    }, [username]);
 
 
     return (

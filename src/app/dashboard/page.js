@@ -6,25 +6,23 @@ import { useRouter } from 'next/navigation'
 import supabase from '@/utils/supabaseClient'
 
 export default function Dashboard() {
-  const { username, setUsername } = useUser()
-  const [userId, setUserId] = useState('')
-  const [category, setCategory] = useState('')
-  const [amount, setAmount] = useState('')
-  const [persExpComments, setPersExpComments] = useState('')
-  const [loanComments, setLoanComments] = useState('')
-  const [loanCategory, setLoanCategory] = useState('')
-  const [loanAmount, setLoanAmount] = useState('')
-  const [borrower, setBorrower] = useState('')
-  const [otherUsers, setOtherUsers] = useState([])
-  const [successMsg, setSuccessMsg] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
-  const router = useRouter()
+  const { username, setUsername } = useUser();
+  const [userId, setUserId] = useState('');
+  const [category, setCategory] = useState('');
+  const [amount, setAmount] = useState('');
+  const [persExpComments, setPersExpComments] = useState('');
+  const [loanComments, setLoanComments] = useState('');
+  const [loanCategory, setLoanCategory] = useState('');
+  const [loanAmount, setLoanAmount] = useState('');
+  const [borrower, setBorrower] = useState('');
+  const [otherUsers, setOtherUsers] = useState([]);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const router = useRouter();
 
   const currentMonth = new Date().toLocaleString('default', { month: 'long' })
   const currentYear = new Date().getFullYear();
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
+  const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/redirect')
@@ -48,10 +46,11 @@ export default function Dashboard() {
         .neq('username', username)
 
       setOtherUsers(users || [])
-    }
+  };
 
-    fetchUserInfo()
-  }, [router])
+  useEffect(() => {
+    fetchUserInfo();
+  }, [username])
 
   const handlePersonalSave = async () => {
     setSuccessMsg('')

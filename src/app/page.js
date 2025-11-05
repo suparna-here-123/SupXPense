@@ -8,9 +8,10 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // redirectTo: 'https://sup-x-pense.vercel.app/redirect'
         queryParams: { prompt: 'select_account' },
-        redirectTo: 'http://localhost:3000/redirect'
+        // redirectTo: 'http://localhost:3000/redirect'
+        redirectTo: 'https://sup-x-pense.vercel.app/redirect'
+
       }
     })
 

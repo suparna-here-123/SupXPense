@@ -73,7 +73,7 @@ export default function ViewStats() {
 	useEffect(() => {
 		thisMonthExpenses();
 		fetchLoanSummary();
-	}, [username]);
+	});
 
 
 	return (
