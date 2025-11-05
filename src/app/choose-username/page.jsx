@@ -1,10 +1,9 @@
-// ✅ src/app/choose-username/page.jsx (SERVER COMPONENT)
 import { redirect } from 'next/navigation';
-import { createServerSupabase } from '@/utils/supabaseServerClient';
+import { createClient } from '@/utils/supabaseServerClient'; 
 import ChooseUsernameClient from './ChooseUsernameClient';
 
 export default async function Page() {
-  const supabase = createServerSupabase();
+  const supabase = await createClient();
 
   // ✅ Check if logged in
   const { data: { user } } = await supabase.auth.getUser();
