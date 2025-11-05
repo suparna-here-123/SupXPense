@@ -1,163 +1,107 @@
 'use client'
-import { useRef } from 'react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from '@/utils/supabaseClient';
-import { useUser } from '@/utils/UserContext'
+import { useUser } from '@/utils/UserContext';
 
-export default function GroupsPage() {
-    // Boolean variable to show Create Group dialog or not
-    const [showDialog, setShowDialog] = useState(false);
-    // Get group name + admin
-    const [groupInfos, setGroupInfos] = useState([]);
+export default function GroupsClient({ username, initialGroups }) {
+  const router = useRouter();
+  const { setUsername } = useUser();
+  useEffect(() => setUsername(username), [username]);
 
-    // For creating a new group
-    const [newGroupName, setNewGroupName] = useState('');
-    const [categoryInput, setCategoryInput] = useState('');
-    const [categories, setCategories] = useState([]);
-    const [creating, setCreating] = useState(false);
-    const categoryInputRef = useRef(null);
+  // ✅ STATES
+  const [groupInfos, setGroupInfos] = useState(initialGroups);
+  const [showDialog, setShowDialog] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [categoryInput, setCategoryInput] = useState('');
+  const [creating, setCreating] = useState(false);
+  const categoryInputRef = useRef(null);
 
-    // Current username, got from Context
-    const { username, setUsername } = useUser();
+  // Member management
+  const [showAddMembersDialog, setShowAddMembersDialog] = useState(false);
+  const [groupMembers, setGroupMembers] = useState([]);
+  const [potentialMembers, setPotentialMembers] = useState([]);
+  const [newMembers, setNewMembers] = useState([]);
+  const [removeMembers, setRemoveMembers] = useState([]);
+  const [currentAddGroupID, setCurrentAddGroupID] = useState(null);
+  const [saveChangesLoading, setSaveChangesLoading] = useState(false);
 
-    // Boolean variable to show Manage Members dialog or not
-    const [showAddMembersDialog, setShowAddMembersDialog] = useState(false);
-    // Show existing group members
-    const [groupMembers, setGroupMembers] = useState([]);
-    // Members to remove
-    const [removeMembers, setremoveMembers] = useState([]);
-    // Members who aren't part of the group but can be added
-    const [potentialMembers, setpotentialMembers] = useState([]);
-    const [newMembers, setnewMembers] = useState([]);
-    const [saveChangesLoading, setsaveChangesLoading] = useState(false);
-    
-    const router = useRouter();
+  // ✅ Function: Add Category
+  const handleAddCategory = () => {
+    const trimmed = categoryInput.trim();
+    if (trimmed && !categories.includes(trimmed)) {
+      setCategories([...categories, trimmed]);
+      setCategoryInput('');
+      categoryInputRef.current?.focus();
+    }
+  };
 
-    // Add category to list
-    const handleAddCategory = () => {
-        const trimmed = categoryInput.trim();
-        if (trimmed && !categories.includes(trimmed)) {
-            setCategories([...categories, trimmed]);
-            setCategoryInput('');
-            if (categoryInputRef.current) categoryInputRef.current.focus();
-        }
-    };
+  // ✅ Function: Remove Category
+  const handleRemoveCategory = (cat) => {
+    setCategories(categories.filter(c => c !== cat));
+  };
 
-    // Remove category from list
-    const handleRemoveCategory = (cat) => {
-        setCategories(categories.filter(c => c !== cat));
-    };
+  // ✅ Function: Create group (writes to DB)
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim() || categories.length === 0) return;
+    setCreating(true);
 
-    // Create group and categories in DB
-    const handleCreateGroup = async () => {
-        if (!newGroupName.trim() || categories.length === 0) return;
-        setCreating(true);
-        // Insert into groups, returning groupid
-        const { data: groupRows, error: groupErr } = await supabase
-            .from('groups')
-            .insert([{ groupname: newGroupName.trim(), admin: username }])
-            .select('groupid')
-            .single();
-        if (groupErr || !groupRows) {
-            setCreating(false);
-            alert('Failed to create group');
-            return;
-        }
-        const groupid = groupRows.groupid;
-        // No errors, add row to table 'groupmembership' also
-        const { error: groupMemErr } = await supabase
-            .from('groupmembership')
-            .insert([{ groupid: groupid, username : username }])
+    const { data: groupRow, error: groupErr } = await supabase
+      .from('groups')
+      .insert([{ groupname: newGroupName.trim(), admin: username }])
+      .select('groupid')
+      .single();
 
-        if (groupMemErr) {
-            setCreating(false);
-            alert('Failed to add group membership details');
-            return;
-        }
+    if (groupErr || !groupRow) {
+      alert('Failed to create group');
+      setCreating(false);
+      return;
+    }
 
-        // Insert categories
-        const catRows = categories.map(cat => ({ groupid, groupcategory: cat }));
-        const { error: catErr } = await supabase
-            .from('groupcategories')
-            .insert(catRows);
-        setCreating(false);
-        setShowDialog(false);
-        setNewGroupName('');
-        setCategories([]);
-        setCategoryInput('');
-        if (catErr) {
-            alert('Group created, but failed to add categories');
-        } else {
-            alert('Group created successfully!');
-        }
-        // Optionally, refresh group list
-        window.location.reload();
-    };
+    const groupid = groupRow.groupid;
+    await supabase.from('groupmembership').insert([{ groupid, username }]);
+    await supabase.from('groupcategories').insert(
+      categories.map(c => ({ groupid, groupcategory: c }))
+    );
 
-    // Get groupIDs for this username
-    const getGroupIDsForUser = async (username) => {
-        const { data, error } = await supabase
-            .from('groupmembership')
-            .select('groupid')
-            .eq('username', username);
-        if (error) {
-            return [];
-        }
-        return data.map(row => row.groupid);
-    };
+    alert('Group created!');
+    setCreating(false);
+    setShowDialog(false);
+    setNewGroupName('');
+    setCategories([]);
 
-    // Get group name and admin
-    const getGroupsInfo = async (groupIDs) => {
-        if (!groupIDs.length) return [];
-        const { data, error } = await supabase
-            .from('groups')
-            .select('groupid, groupname, admin')
-            .in('groupid', groupIDs);
-        if (error) return [];
-        return data;
-    };
+    // Refresh UI
+    setGroupInfos([...groupInfos, { groupid, groupname: newGroupName, admin: username }]);
+  };
 
-    // Opens dialog to manage members to group
-    const addMembersToGroup = async (groupID) => {
-        setShowAddMembersDialog(true);
-        setnewMembers([]);
-        setGroupMembers([]);
+  // ✅ Open Member Management Dialog
+  const addMembersToGroup = async (groupID) => {
+    setShowAddMembersDialog(true);
+    setCurrentAddGroupID(groupID);
+    setNewMembers([]);
+    setRemoveMembers([]);
 
-        // Fetch all users excluding existing members
-        const { data: allUsers } = await supabase
-            .from('users')
-            .select('username');
+    const { data: allUsers } = await supabase.from('users').select('username');
+    const { data: members } = await supabase.from('groupmembership').select('username').eq('groupid', groupID);
 
-        const { data: members } = await supabase
-            .from('groupmembership')
-            .select('username')
-            .eq('groupid', groupID);
+    const memberNames = (members || []).map(m => m.username);
+    setGroupMembers(members || []);
+    setPotentialMembers(allUsers.filter(u => !memberNames.includes(u.username) && u.username !== username));
+  };
 
-        const memberUsernames = (members || []).map(m => m.username);
-        const potential = (allUsers || []).filter(u => !memberUsernames.includes(u.username) && u.username !== username);
-
-        setpotentialMembers(potential);
-        
-        // Store groupID for dialog actions
-        setCurrentAddGroupID(groupID);
-        getGroupMembers(groupID);
-    };
-
-    // Add selected users to groupmembership
-    const [currentAddGroupID, setCurrentAddGroupID] = useState(null);
     const handleAddUserToSelection = (user) => {
-        if (!newMembers.includes(user)) setnewMembers([...newMembers, user]);
+    if (!newMembers.includes(user)) setNewMembers([...newMembers, user]);
     };
 
     const handleRemoveUserFromSelection = (user) => {
-        setnewMembers(newMembers.filter(u => u !== user));
+        setNewMembers(newMembers.filter(u => u !== user));
     };
-    
-    const handleSaveChanges = async () => {
+
+  const handleSaveChanges = async () => {
         if (!currentAddGroupID) return;
 
-        setsaveChangesLoading(true);
+        setSaveChangesLoading(true);
         // Make rows
         const newMemRows = newMembers.map(u => ({ groupid: currentAddGroupID, username: u }));
         
@@ -168,37 +112,16 @@ export default function GroupsPage() {
                                     .match({ groupid: currentAddGroupID })
                                     .in('username', removeMembers);
         
-        setsaveChangesLoading(false);
+        setSaveChangesLoading(false);
         setShowAddMembersDialog(false);
-        setnewMembers([]);
+        setNewMembers([]);
         setCurrentAddGroupID(null);
 
         if ( addError || removeError ) alert('Failed to save changes.');
         else alert('Saved changes!');
-    };
+  };
 
-    // Fetch group members
-    const getGroupMembers = async (groupID) => {
-    const { data: members } = await supabase
-        .from('groupmembership')
-        .select('username')
-        .eq('groupid', groupID);
     
-        setGroupMembers(members || []);
-    }
-
-    const fetchGroups = async () => {
-        if (!username) return;
-        const groupIDs = await getGroupIDsForUser(username);
-        const infos = await getGroupsInfo(groupIDs);
-        setGroupInfos(infos);
-    };
-
-    useEffect(() => {
-        fetchGroups();
-    }, [username]);
-
-
     return (
         <div className="p-6">
             {showAddMembersDialog && (
@@ -241,8 +164,8 @@ export default function GroupsPage() {
                                                 type="checkbox"
                                                 checked={removeMembers.includes(m.username)}
                                                 onChange={e => {
-                                                    if (e.target.checked) setremoveMembers([...removeMembers, m.username]);
-                                                    else setremoveMembers(removeMembers.filter(u => u !== m.username));
+                                                    if (e.target.checked) setRemoveMembers([...removeMembers, m.username]);
+                                                    else setRemoveMembers(removeMembers.filter(u => u !== m.username));
                                                 }}
                                             />
                                             {m.username}
@@ -289,7 +212,8 @@ export default function GroupsPage() {
             className="btn btn-primary mb-6"
             onClick={() => {
                 setShowDialog(true); 
-                fetchGroups();}}
+                // fetchGroups();
+            }}
         >
             Create Group
         </button>
@@ -388,4 +312,4 @@ export default function GroupsPage() {
         )}
     </div>
     );
-};
+}

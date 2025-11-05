@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation';
 import supabase from '@/utils/supabaseClient';
 import { useUser } from '@/utils/UserContext'
 
@@ -74,7 +73,8 @@ export default function GroupExpensePage() {
         }        
     };
 
-    const prepareExpenseBox = async (groupid) => {
+    const prepareExpenseBox = async () => {
+        if (!groupid) console.log('no groupid')
         setExpenseAmount('');
         setExpenseCategory('');
         setequalSplitters([]);
@@ -99,7 +99,7 @@ export default function GroupExpensePage() {
     }
 
     useEffect(() => {
-        prepareExpenseBox(groupid);
+        prepareExpenseBox();
     }, [groupid]);
 
     return(

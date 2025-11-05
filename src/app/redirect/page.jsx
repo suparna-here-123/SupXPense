@@ -1,21 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import supabase from '@/utils/supabaseClient'
+import supabase from '@/utils/supabaseClient'  // ✅ Client-side Supabase SDK
 
 export default function RedirectPage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const handleRedirect = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push('/') // go back to sign-in
+        router.push('/') // Not logged in → go to sign-in page
         return
       }
 
@@ -26,9 +23,9 @@ export default function RedirectPage() {
         .single()
 
       if (profile?.username) {
-        router.push('/dashboard')
+        router.push('/dashboard')  // Already has username → go to dashboard
       } else {
-        router.push('/choose-username')
+        router.push('/choose-username')  // New user → go to create username page
       }
     }
 

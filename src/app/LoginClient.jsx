@@ -1,24 +1,23 @@
-'use client'
+'use client';
 
-import supabase from '@/utils/supabaseClient'
+import supabase from '@/utils/supabaseClient';
 
-
-export default function LoginPage() {
+export default function LoginClient() {
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         queryParams: { prompt: 'select_account' },
-        // redirectTo: 'http://localhost:3000/redirect'
-        redirectTo: 'https://sup-x-pense.vercel.app/redirect'
-
-      }
-    })
+        // redirectTo: 'https://sup-x-pense.vercel.app/redirect',
+        // ✅ For local development use:
+        redirectTo: 'http://localhost:3000/redirect',
+      },
+    });
 
     if (error) {
-      console.error('Login error:', error.message)
+      console.error('Login error:', error.message);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -30,5 +29,5 @@ export default function LoginPage() {
         Sign in with Google
       </button>
     </div>
-  )
+  );
 }
