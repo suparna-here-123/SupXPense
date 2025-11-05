@@ -284,7 +284,7 @@ export default function GroupsPage() {
                 </dialog>
             )}
 
-        <h1 className="text-2xl font-bold mb-4">{username}'s Groups</h1>
+        <h1 className="text-2xl font-bold mb-4">My Groups</h1>
         <button
             className="btn btn-primary mb-6"
             onClick={() => {
