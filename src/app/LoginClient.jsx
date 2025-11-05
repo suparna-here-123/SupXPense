@@ -8,9 +8,8 @@ export default function LoginClient() {
       provider: 'google',
       options: {
         queryParams: { prompt: 'select_account' },
-        redirectTo: 'https://sup-x-pense.vercel.app/redirect',
-        // ✅ For local development use:
-        // redirectTo: 'http://localhost:3000/redirect',
+        // redirectTo: 'https://sup-x-pense.vercel.app/redirect',
+        redirectTo: 'http://localhost:3000/redirect',
       },
     });
 
