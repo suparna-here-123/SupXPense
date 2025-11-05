@@ -78,9 +78,10 @@ export default function ViewStats() {
 
 	return (
 		<div className="min-h-screen flex flex-col md:flex-row items-center p-6">
+			<h2 className="text-lg font-semibold mb-4">{currentMonth} {currentYear}</h2>
 			{/* Left side: Monthly monthExpenses Table */}
 			<div className="flex-1 border p-4 rounded shadow w-full max-w-2xl mb-6 md:mb-0 md:mr-6">
-				<h2 className="text-lg font-semibold mb-4">{currentMonth} {currentYear} expenses</h2>
+				<h2 className="text-lg font-semibold mb-4">Individual expenses</h2>
 				<table className="w-full border-collapse">
 					<thead>
 						<tr>
@@ -105,34 +106,61 @@ export default function ViewStats() {
 				</table>
 				{errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
 			</div>
-					{/* Right side: Loan Summary Table */}
-					<div className="flex-1 border p-4 rounded shadow w-full max-w-2xl">
-						<h2 className="text-lg font-semibold mb-4">Loan Summary</h2>
-						<table className="w-full border-collapse">
-							<thead>
-								<tr>
-									<th className="border px-2 py-1">User</th>
-									<th className="border px-2 py-1">I lent</th>
-									<th className="border px-2 py-1">I borrowed</th>
-									<th className="border px-2 py-1">Balance</th>
+
+			{/* Right side: Loan Sumary Table */}
+			<div className="flex-1 border p-4 rounded shadow w-full max-w-2xl">
+				<h2 className="text-lg font-semibold mb-4">Loan Summary</h2>
+				<table className="w-full border-collapse">
+					<thead>
+						<tr>
+							<th className="border px-2 py-1">User</th>
+							<th className="border px-2 py-1">I lent</th>
+							<th className="border px-2 py-1">I borrowed</th>
+							<th className="border px-2 py-1">Balance</th>
+						</tr>
+					</thead>
+					<tbody>
+						{loanSummary.length === 0 ? (
+							<tr><td colSpan={4} className="text-center py-2">No loan data</td></tr>
+						) : (
+							loanSummary.map((row, idx) => (
+								<tr key={idx} className="text-center">
+									<td className="border px-2 py-1">{row.user}</td>
+									<td className="border px-2 py-1">{row.amountLent}</td>
+									<td className="border px-2 py-1">{row.amountBorrowed}</td>
+									<td className="border px-2 py-1">{row.balance}</td>
 								</tr>
-							</thead>
-							<tbody>
-								{loanSummary.length === 0 ? (
-									<tr><td colSpan={4} className="text-center py-2">No loan data</td></tr>
-								) : (
-									loanSummary.map((row, idx) => (
-										<tr key={idx} className="text-center">
-											<td className="border px-2 py-1">{row.user}</td>
-											<td className="border px-2 py-1">{row.amountLent}</td>
-											<td className="border px-2 py-1">{row.amountBorrowed}</td>
-											<td className="border px-2 py-1">{row.balance}</td>
-										</tr>
-									))
-								)}
-							</tbody>
-						</table>
-					</div>
+							))
+						)}
+					</tbody>
+				</table>
+			</div>
+
+			{/* Expenses grouped by category */}
+			<div className="flex-1 border p-4 rounded shadow w-full max-w-2xl mb-6 md:mb-0 md:mr-6">
+				<h2 className="text-lg font-semibold mb-4">Grouped expenses</h2>
+				<table className="w-full border-collapse">
+					<thead>
+						<tr>
+							<th className="border px-2 py-1">Category</th>
+							<th className="border px-2 py-1">Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						{groupedExpenses.length === 0 ? (
+							<tr><td colSpan={2} className="text-center py-2">No expenses yet</td></tr>
+						) : (
+							groupedExpenses.map((row, idx) => (
+								<tr key={idx} className="text-center">
+									<td className="border px-2 py-1">{row.category}</td>
+									<td className="border px-2 py-1">{row.total}</td>
+								</tr>
+							))
+						)}
+					</tbody>
+				</table>
+				{errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
+			</div>
 		</div>
 	)
 };
