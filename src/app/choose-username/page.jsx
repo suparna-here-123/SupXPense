@@ -1,6 +1,6 @@
 // ✅ src/app/choose-username/page.jsx (SERVER COMPONENT)
 import { redirect } from 'next/navigation';
-import { createServerSupabase } from '@/utils/supabaseServeClient';
+import { createServerSupabase } from '@/utils/supabaseServerClient';
 import ChooseUsernameClient from './ChooseUsernameClient';
 
 export default async function Page() {
