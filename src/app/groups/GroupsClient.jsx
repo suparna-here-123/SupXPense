@@ -302,7 +302,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                     </button>
                                     <button
                                         className="btn btn-info"
-                                        onClick={() => router.push(`/group-info?groupid=${group.groupid}`)}>
+                                        onClick={() => router.push(`/group-info?groupid=${group.groupid}&groupname=${group.groupname}`)}>
                                         Info
                                     </button>                                    
                                 </div>

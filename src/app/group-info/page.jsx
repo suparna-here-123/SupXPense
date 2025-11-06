@@ -7,6 +7,7 @@ export default async function Page({ searchParams }) {
     const supabase = await createClient();
     const params = await searchParams
     const groupid = params.groupid;
+    const groupname = params.groupname;
 
     // 1. Check if user is logged in (server-side)
     const { data: { user } } = await supabase.auth.getUser();
@@ -27,7 +28,7 @@ export default async function Page({ searchParams }) {
         .select('lender, borrower, category, cost, comments')
         .eq('groupid', groupid);
 
-    // 4. Get all the unique transactors
+    // 5. Get all the unique transactors
     if (!groupExpenses) return [];
 
     const transactors = [
@@ -41,6 +42,7 @@ export default async function Page({ searchParams }) {
     <Suspense fallback={<div>Loading group info...</div>}>
       <GroupInfoClient 
         groupid={groupid}
+        groupname={groupname}
         groupExpenses={groupExpenses}
         transactors={transactors}
         />

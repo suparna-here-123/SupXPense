@@ -5,10 +5,15 @@ import supabase from '@/utils/supabaseClient';
 import { useUser } from '@/utils/UserContext';
 import { useRouter } from 'next/navigation';
 
-export default function GroupInfoClient({ groupid, groupExpenses, transactors }) {
+export default function GroupInfoClient({ groupid, groupname, groupExpenses, transactors }) {
     const [ groupBalances, setGroupBalances ] = useState([]);
     const [indivContrib, setIndivContrib] = useState([]);
+    const [settleUpWith, setSettleUpWith] = useState([]);
+    const { username, setUsername } = useUser();
 
+    const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+    const currentYear = new Date().getFullYear();
+    
     const getIndivContrib = () => {
         const totals = {};
 
@@ -65,6 +70,40 @@ export default function GroupInfoClient({ groupid, groupExpenses, transactors })
       setGroupBalances(balances);
     }
 
+    const settleUp = async () => {
+      // 1. Add the balance to borrower's personal expense under category 'Group'
+      const { addError } = await supabase
+                          .from('personalexpenses')
+                          .insert({
+                              username : settleUpWith.borrower,
+                              expyear : currentYear,
+                              expmonth : currentMonth,
+                              category : 'Debt',
+                              amount : settleUpWith.balance,
+                              comments : groupname
+     })
+     if (addError) {
+      alert('Error settling up.')
+      setSettleUpWith([]);
+      return;
+     }
+
+    // 2. Delete all transactions between this lender and borrower in this group in table 'groupexpenses'
+    const { delError } = await supabase
+                        .from('groupexpenses')
+                        .delete()
+                        .match({
+                          lender : settleUpWith.lender,
+                          borrower : settleUpWith.borrower,
+                        })
+    
+    if (delError){
+      alert('Error settling up.')
+      setSettleUpWith([]);
+      return;      
+    } else alert('Debt settled!' );
+  };
+
     useEffect(() => {
         getIndivContrib();
         calculateBalances();
@@ -77,6 +116,7 @@ export default function GroupInfoClient({ groupid, groupExpenses, transactors })
         <h2 className="text-lg font-semibold mb-4">
           Per-person out-of-pocket
         </h2>
+        
         <table className="w-full border-collapse">
           <thead>
             <tr>
@@ -99,31 +139,43 @@ export default function GroupInfoClient({ groupid, groupExpenses, transactors })
         </table>
 
         <h2 className="text-lg font-semibold mb-4">
-          Settlements
+          Pending Settlements
         </h2>
+
         <table className="w-full border-collapse">
           <thead>
             <tr>
               <th className="border px-2 py-1">Lender</th>
               <th className="border px-2 py-1">Borrower</th>
               <th className="border px-2 py-1">Balance</th>
+              <th className="border px-2 py-1">Settle up</th>
             </tr>
           </thead>
           <tbody>
             {groupBalances.length === 0 ? (
-              <tr><td colSpan={3} className="text-center py-2">No balances</td></tr>
+              <tr><td colSpan={4} className="text-center py-2">No balances</td></tr>
             ) : (
               groupBalances.map((obj, idx) => (
                   <tr key={idx} className="text-center">
                     <td className="border px-2 py-1">{obj.lender}</td>
                     <td className="border px-2 py-1">{obj.borrower}</td>
                     <td className="border px-2 py-1">{obj.balance}</td>
+                    <td className="border px-2 py-1">
+                      <button
+                          className="px-4 py-2 rounded border"
+                          onClick={() => {
+                            setSettleUpWith(obj);
+                            settleUp();
+                          }}
+                          disabled = { !(obj.lender == username || obj.borrower == username) }
+                      >Settle up</button>
+                    </td>
                   </tr>
                 ))
             )}
           </tbody>
         </table>
 
-      </div>        
+      </div>   
     )    
-}
+  };
