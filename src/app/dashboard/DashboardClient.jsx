@@ -15,12 +15,14 @@ export default function DashboardClient({ username, userId, otherUsers }) {
   const [loanComments, setLoanComments] = useState('');
   const [loanCategory, setLoanCategory] = useState('');
   const [loanAmount, setLoanAmount] = useState('');
-  const [borrower, setBorrower] = useState('');
+  const [transactor, setTransactor] = useState('');
+  const [myRole, setMyRole] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   const currentYear = new Date().getFullYear();
+  const defaultCats = ['Food', 'Cab', 'Fuel', 'Groceries', 'Misc'];
 
   const handlePersonalSave = async () => {
     setSuccessMsg('');
@@ -53,7 +55,7 @@ export default function DashboardClient({ username, userId, otherUsers }) {
     setSuccessMsg('');
     setErrorMsg('');
 
-    if (!loanCategory || !loanAmount || !borrower) {
+    if (!loanCategory || !loanAmount || !transactor) {
       setErrorMsg('Please fill all loan fields');
       return;
     }
@@ -61,9 +63,10 @@ export default function DashboardClient({ username, userId, otherUsers }) {
     const { error } = await supabase.from('loans').insert({
       loanYear: currentYear,
       loanMonth: currentMonth,
-      lender: username,
-      borrower,
+      lender: myRole == 'lent' ? username : transactor,
+      borrower : myRole == 'borrowed' ? username : transactor,
       category: loanCategory,
+      comments : loanComments,
       amount: parseFloat(loanAmount),
     });
 
@@ -72,7 +75,8 @@ export default function DashboardClient({ username, userId, otherUsers }) {
       setSuccessMsg('Loan saved!');
       setLoanAmount('');
       setLoanCategory('');
-      setBorrower('');
+      setTransactor('');
+      setLoanComments('');
     }
   };
 
@@ -100,7 +104,7 @@ export default function DashboardClient({ username, userId, otherUsers }) {
       </div>
 
       <h1 className="text-3xl font-bold mb-2">Welcome, {username}</h1>
-      <p className="mb-6">Your transactions this <strong>{currentMonth}</strong></p>
+      <p className="mb-6">Transactions this <strong>{currentMonth}</strong></p>
 
       <div className="flex flex-col md:flex-row gap-6 w-full max-w-4xl">
         {/* Personal Expense */}
@@ -110,12 +114,9 @@ export default function DashboardClient({ username, userId, otherUsers }) {
           <label className="form-control w-full mb-3">
             <span className="label-text">Category</span>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="select select-bordered w-full mt-1">
-              <option value="">Select category</option>
-              <option value="Food">Food</option>
-              <option value="Cab">Cab</option>
-              <option value="Gift">Gift</option>
-              <option value="Petrol">Petrol</option>
-              <option value="Misc">Misc</option>
+                {defaultCats.map(item => (
+                <option key={item} value={item}>{item}</option>
+              ))}
             </select>
           </label>
 
@@ -137,8 +138,8 @@ export default function DashboardClient({ username, userId, otherUsers }) {
           <h2 className="card-title mb-2">Loan / Debt</h2>
 
           <label className="form-control w-full mb-3">
-            <span className="label-text">Borrower</span>
-            <select value={borrower} onChange={(e) => setBorrower(e.target.value)} className="select select-bordered w-full mt-1">
+            <span className="label-text">Transactor</span>
+            <select value={transactor} onChange={(e) => setTransactor(e.target.value)} className="select select-bordered w-full mt-1">
               <option value="">Select user</option>
               {otherUsers.map(user => (
                 <option key={user.username} value={user.username}>{user.username}</option>
@@ -147,14 +148,21 @@ export default function DashboardClient({ username, userId, otherUsers }) {
           </label>
 
           <label className="form-control w-full mb-3">
+            <span className="label-text">My role</span>
+            <select value={myRole} onChange={(e) => setMyRole(e.target.value)} className="select select-bordered w-full mt-1">
+              <option value="">Select user</option>
+              <option value="lent">I lent money</option>
+              <option value="borrowed">I borrowed money</option>              
+            </select>
+          </label>
+
+
+          <label className="form-control w-full mb-3">
             <span className="label-text">Category</span>
             <select value={loanCategory} onChange={(e) => setLoanCategory(e.target.value)} className="select select-bordered w-full mt-1">
-              <option value="">Select category</option>
-              <option value="Food">Food</option>
-              <option value="Cab">Cab</option>
-              <option value="Gift">Gift</option>
-              <option value="Petrol">Petrol</option>
-              <option value="Misc">Misc</option>
+                {defaultCats.map(item => (
+                <option key={item} value={item}>{item}</option>
+              ))}
             </select>
           </label>
 

@@ -2,12 +2,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from '@/utils/supabaseClient';
-import { useUser } from '@/utils/UserContext';
 
 export default function GroupsClient({ username, initialGroups }) {
   const router = useRouter();
-  const { setUsername } = useUser();
-  useEffect(() => setUsername(username), [username]);
 
   // ✅ STATES
   const [groupInfos, setGroupInfos] = useState(initialGroups);
@@ -207,7 +204,7 @@ export default function GroupsClient({ username, initialGroups }) {
                 </dialog>
             )}
 
-        <h1 className="text-2xl font-bold mb-4">My Groups</h1>
+        <h1 className="text-2xl font-bold mb-4">My Groups {username} </h1>
         <button
             className="btn btn-primary mb-6"
             onClick={() => {
@@ -303,6 +300,11 @@ export default function GroupsClient({ username, initialGroups }) {
                                         onClick={() => router.push(`/group-expense?groupid=${group.groupid}`)}>
                                         Add expense
                                     </button>
+                                    <button
+                                        className="btn btn-info"
+                                        onClick={() => router.push(`/group-info?groupid=${group.groupid}`)}>
+                                        Info
+                                    </button>                                    
                                 </div>
                             </div>
                         </div>

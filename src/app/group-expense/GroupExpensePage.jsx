@@ -8,6 +8,7 @@ export default function GroupExpensePage() {
     const searchParams = useSearchParams();
     const groupid = searchParams.get('groupid');
     const { username, setUsername } = useUser();
+    const [lender, setLender] = useState('');
     const [expenseAmount, setExpenseAmount] = useState('');
     const [expenseCategory, setExpenseCategory] = useState('');
     const [expenseCategories, setExpenseCategories] = useState([]);
@@ -26,7 +27,7 @@ export default function GroupExpensePage() {
         const perPerson = Math.round(expenseAmount / equalSplitters.length, 2);
         const rows = equalSplitters.map(u => ({ 
             groupid: groupid,
-            lender : username,
+            lender : lender,
             borrower : u,
             category : expenseCategory,
             cost : perPerson,
@@ -46,7 +47,7 @@ export default function GroupExpensePage() {
         if (unequalType == '$'){
             rows = unequalSplitters.map(item => ({
                 groupid : groupid, 
-                lender : username,
+                lender : lender,
                 borrower : item.username,
                 category: expenseCategory,
                 cost : item.value,
@@ -57,7 +58,7 @@ export default function GroupExpensePage() {
         else {
             rows = unequalSplitters.map(item => ({
                 groupid : groupid, 
-                lender : username,
+                lender : lender,
                 borrower : item.username,
                 category: expenseCategory,
                 cost : Math.round(item.value / 100 * expenseAmount, 2),
@@ -106,6 +107,20 @@ export default function GroupExpensePage() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div className="bg-black p-6 rounded shadow-lg w-full max-w-md">
                 <h2 className="text-xl font-semibold mb-4">Add Expense</h2>
+
+                <label className="block mb-2">Who Paid?:
+                    <select
+                        className="w-full border p-2 rounded mt-1"
+                        value={lender}
+                        onChange={e => setLender(e.target.value)}
+                    >
+                        <option value="">Select user</option>
+                        {groupMembers.map(cat => (
+                            <option key={cat.username} value={cat.username}>{cat.username}</option>
+                        ))}
+                    </select>
+                </label>
+
                 <label className="block mb-2">Category:
                     <select
                         className="w-full border p-2 rounded mt-1"
@@ -118,6 +133,7 @@ export default function GroupExpensePage() {
                         ))}
                     </select>
                 </label>
+
                 <label className="block mb-2">Split:</label>
                 <div className="flex gap-4 mb-2">
                     <label>
