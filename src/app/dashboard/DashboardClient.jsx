@@ -34,10 +34,10 @@ export default function DashboardClient({ username, userId, otherUsers }) {
     }
 
     const { error } = await supabase.from('personalexpenses').insert({
-      username,
+      username: username,
       expyear: currentYear,
       expmonth: currentMonth,
-      category,
+      category: category,
       amount: parseFloat(amount),
       comments: persExpComments,
     });
