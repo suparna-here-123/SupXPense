@@ -117,9 +117,10 @@ export default function GroupInfoClient({ groupid, groupname, groupExpenses, tra
           <div className="card-body">
             <div className="stats stats-vertical lg:stats-horizontal shadow mb-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-3 rounded-md">
               <div className="stat">
+                <div className="stat-title text-3xl">{groupname}</div>
+                <div className="stat-value text-4xl text-primary ">₹{totalSpent}</div>
                 <div className="stat-title">Running total</div>
-                <div className="stat-value text-4xl text-primary">₹{totalSpent}</div>
-                <div className="stat-desc">{groupname}</div>
+                
               </div>
             </div>
 

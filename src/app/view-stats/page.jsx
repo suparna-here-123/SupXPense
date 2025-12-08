@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabaseServerClient';
 import ViewStatsClient from './ViewStatsClient';
 
-export default async function Page() {
+export default async function Page({ searchParams }) {
   const supabase = await createClient();
+  const params = await searchParams;
 
   // ✅ 1. Check auth
   const { data: { user } } = await supabase.auth.getUser();
@@ -18,10 +19,11 @@ export default async function Page() {
     .single();
 
   const username = profile?.username;
-  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-  const currentYear = new Date().getFullYear();
+  const currentMonth = params.month || new Date().toLocaleString('default', { month: 'long' });
+  const currentYear = parseInt(params.year) || new Date().getFullYear();
 
-  // ✅ 3. Fetch PERSONAL EXPENSES on server:
+  // ✅ 3. Fetch PERSONAL EXPENSES on server
+  let monthTotal = 0;
   const { data: monthExpenses } = await supabase
     .from('personalexpenses')
     .select('category, amount, comments')
@@ -35,11 +37,13 @@ export default async function Page() {
   const grouped = {};
   (monthExpenses || []).forEach(exp => {
     grouped[exp.category] = (grouped[exp.category] || 0) + Number(exp.amount);
+    monthTotal += exp.amount;
   });
   const groupedExpenses = Object.entries(grouped).map(([category, total]) => ({
     category,
     total,
   }));
+
 
   // ✅ 4. Fetch LOAN SUMMARY on server:
   const { data: loans } = await supabase
@@ -70,6 +74,7 @@ export default async function Page() {
     <ViewStatsClient
       username={username}
       monthExpenses={monthExpenses || []}
+      monthTotal={monthTotal}
       groupedExpenses={groupedExpenses}
       loanSummary={loanSummary}
       currentMonth={currentMonth}
