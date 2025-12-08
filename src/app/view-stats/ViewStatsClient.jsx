@@ -17,7 +17,6 @@ export default function ViewStatsClient({
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row gap-6 p-6">
-      {/* ===== Left: Personal Expenses ===== */}
       <div className="flex-1 border p-4 rounded shadow">
         <h2 className="text-lg font-semibold mb-4">
           {currentMonth} {currentYear} – Your Expenses

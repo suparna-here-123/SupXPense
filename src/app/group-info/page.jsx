@@ -28,7 +28,27 @@ export default async function Page({ searchParams }) {
         .select('lender, borrower, category, cost, comments')
         .eq('groupid', groupid);
 
-    // 5. Get all the unique transactors
+    // 5. Group expenses by lender, category, and comments, summing up cost
+    let totalSpent = 0;
+    const indivContrib = {};
+    if (groupExpenses) {
+      groupExpenses.forEach(exp => {
+        const key = `${exp.lender}|${exp.category}|${exp.comments || ''}`;
+        if (!indivContrib[key]) {
+          indivContrib[key] = {
+            lender: exp.lender,
+            category: exp.category,
+            comments: exp.comments,
+            cost: 0
+          };
+        }
+        indivContrib[key].cost += Number(exp.cost) || 0;
+        totalSpent += exp.cost;
+      });
+    }
+    const indivContribArr = Object.values(indivContrib);
+
+    // 6. Get all the unique transactors
     if (!groupExpenses) return [];
 
     const transactors = [
@@ -45,6 +65,8 @@ export default async function Page({ searchParams }) {
         groupname={groupname}
         groupExpenses={groupExpenses}
         transactors={transactors}
+        indivExpenses={indivContribArr}
+        totalSpent={totalSpent}
         />
     </Suspense>
   );

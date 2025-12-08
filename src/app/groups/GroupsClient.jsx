@@ -39,9 +39,22 @@ export default function GroupsClient({ username, initialGroups }) {
     setCategories(categories.filter(c => c !== cat));
   };
 
+  const deleteGroup = async (groupID) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete this group? This action cannot be undone.`);
+    if (isConfirmed){
+        const response = await supabase
+                        .from('groups')
+                        .delete()
+                        .eq('groupid', groupID);
+        alert('Group deleted!');
+        window.location.reload();
+    }
+    
+  };  
+
   // ✅ Function: Create group (writes to DB)
   const handleCreateGroup = async () => {
-    if (!newGroupName.trim() || categories.length === 0) return;
+    if (!newGroupName.trim()) return;
     setCreating(true);
 
     const { data: groupRow, error: groupErr } = await supabase
@@ -58,18 +71,15 @@ export default function GroupsClient({ username, initialGroups }) {
 
     const groupid = groupRow.groupid;
     await supabase.from('groupmembership').insert([{ groupid, username }]);
-    await supabase.from('groupcategories').insert(
-      categories.map(c => ({ groupid, groupcategory: c }))
-    );
 
     alert('Group created!');
     setCreating(false);
     setShowDialog(false);
     setNewGroupName('');
-    setCategories([]);
 
     // Refresh UI
     setGroupInfos([...groupInfos, { groupid, groupname: newGroupName, admin: username }]);
+    addMembersToGroup(groupid);    
   };
 
   // ✅ Open Member Management Dialog
@@ -108,10 +118,13 @@ export default function GroupsClient({ username, initialGroups }) {
                                     .delete()
                                     .match({ groupid: currentAddGroupID })
                                     .in('username', removeMembers);
+    
+        await supabase.from('groupcategories').insert(categories.map(c => ({ groupid, groupcategory: c })));                                 
         
         setSaveChangesLoading(false);
         setShowAddMembersDialog(false);
         setNewMembers([]);
+        setCategories([]);
         setCurrentAddGroupID(null);
 
         if ( addError || removeError ) alert('Failed to save changes.');
@@ -124,7 +137,7 @@ export default function GroupsClient({ username, initialGroups }) {
             {showAddMembersDialog && (
                 <dialog open className="modal modal-open">
                     <div className="modal-box bg-base-200">
-                        <h2 className="font-bold text-lg mb-4">Manage Members</h2>
+                        <h2 className="font-bold text-lg mb-4">Manage Group </h2>
                         <form method="dialog" className="form-control gap-2">
                             <label className="label">Add user</label>
                             <div className="flex gap-2 mb-2">
@@ -169,8 +182,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                         </label>
                                     ))}
                                 </div>
-                            </div>                            
-
+                            </div>
 
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {newMembers.map(user => (
@@ -185,49 +197,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                     </span>
                                 ))}
                             </div>
-                            <div className="modal-action flex gap-2">
-                                <button
-                                    type="button"
-                                    className="btn"
-                                    onClick={() => setShowAddMembersDialog(false)}
-                                    disabled={saveChangesLoading}
-                                >Cancel</button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={handleSaveChanges}
-                                    disabled={saveChangesLoading || (newMembers.length === 0 && removeMembers.length == 0)}
-                                >{saveChangesLoading ? 'Saving...' : 'Save changes'}</button>
-                            </div>
-                        </form>
-                    </div>
-                </dialog>
-            )}
 
-        <h1 className="text-2xl font-bold mb-4">My Groups {username} </h1>
-        <button
-            className="btn btn-primary mb-6"
-            onClick={() => {
-                setShowDialog(true); 
-                // fetchGroups();
-            }}
-        >
-            Create Group
-        </button>
-
-        {showDialog && (
-            <dialog open className="modal modal-open">
-                <div className="modal-box bg-base-200">
-                    <h2 className="font-bold text-lg mb-4">Create Group</h2>
-                    <form method="dialog" className="form-control gap-2">
-                        <label className="label">Group Name:</label>
-                        <input
-                            type="text"
-                            className="input input-bordered w-full mb-2"
-                            value={newGroupName}
-                            onChange={e => setNewGroupName(e.target.value)}
-                            disabled={creating}
-                        />
                         <label className="label">Group Categories:</label>
                         <div className="flex gap-2 mb-2">
                             <input
@@ -265,6 +235,48 @@ export default function GroupsClient({ username, initialGroups }) {
                             <button
                                 type="button"
                                 className="btn"
+                                onClick={() => setShowAddMembersDialog(false)}
+                                disabled={saveChangesLoading}
+                            >Cancel</button>
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={handleSaveChanges}
+                                disabled={saveChangesLoading || (newMembers.length === 0 && removeMembers.length == 0)}
+                            >{saveChangesLoading ? 'Saving...' : 'Save changes'}</button>
+                        </div>
+                        </form>
+                    </div>
+                </dialog>
+            )}
+
+        <h1 className="text-2xl font-bold mb-4">My Groups {username} </h1>
+        <button
+            className="btn btn-primary mb-6"
+            onClick={() => {
+                setShowDialog(true);
+            }}
+        >
+            Create Group
+        </button>
+
+        {showDialog && (
+            <dialog open className="modal modal-open">
+                <div className="modal-box bg-base-200">
+                    <h2 className="font-bold text-lg mb-4">Create Group</h2>
+                    <form method="dialog" className="form-control gap-2">
+                        <label className="label">Group Name:</label>
+                        <input
+                            type="text"
+                            className="input input-bordered w-full mb-2"
+                            value={newGroupName}
+                            onChange={e => setNewGroupName(e.target.value)}
+                            disabled={creating}
+                        />
+                        <div className="modal-action flex gap-2">
+                            <button
+                                type="button"
+                                className="btn"
                                 onClick={() => setShowDialog(false)}
                                 disabled={creating}
                             >Cancel</button>
@@ -272,7 +284,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                 type="button"
                                 className="btn btn-primary"
                                 onClick={handleCreateGroup}
-                                disabled={creating || !newGroupName.trim() || categories.length === 0}
+                                disabled={creating || !newGroupName.trim()}
                             >{creating ? 'Creating...' : 'Create'}</button>
                         </div>
                     </form>
@@ -293,7 +305,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                     <button
                                         className="btn btn-secondary"
                                         onClick={() => addMembersToGroup(group.groupid)}>
-                                        Manage members
+                                        Manage Group
                                     </button>
                                     <button
                                         className="btn btn-primary"
@@ -304,7 +316,12 @@ export default function GroupsClient({ username, initialGroups }) {
                                         className="btn btn-info"
                                         onClick={() => router.push(`/group-info?groupid=${group.groupid}&groupname=${group.groupname}`)}>
                                         Info
-                                    </button>                                    
+                                    </button>
+                                    <button
+                                        className="btn btn-error"
+                                        onClick={() => deleteGroup(group.groupid)}>
+                                        Delete Group
+                                    </button>                                                                  
                                 </div>
                             </div>
                         </div>

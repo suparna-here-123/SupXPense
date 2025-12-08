@@ -24,54 +24,62 @@ export default function GroupExpensePage() {
 
     // Placeholder for split logic
     const handleEqualSplit = async () => {
-        const perPerson = Math.round(expenseAmount / equalSplitters.length, 2);
-        const rows = equalSplitters.map(u => ({ 
-            groupid: groupid,
-            lender : lender,
-            borrower : u,
-            category : expenseCategory,
-            cost : perPerson,
-            comments : comments
-        }));
+        const addFr = window.confirm('Add this expense? It cannot be modified later.')
 
-        const { error } = await supabase.from('groupexpenses').insert(rows);
-        if (error) alert('Failed to add expense.');
-        else{
-            alert('Added expense!');
-            prepareExpenseBox();
+        if (addFr){
+            const perPerson = Math.round(expenseAmount / equalSplitters.length, 2);
+            const rows = equalSplitters.map(u => ({ 
+                groupid: groupid,
+                lender : lender,
+                borrower : u,
+                category : expenseCategory,
+                cost : perPerson,
+                comments : comments != '' ? comments : expenseCategory
+            }));
+
+            const { error } = await supabase.from('groupexpenses').insert(rows);
+            if (error) alert('Failed to add expense.');
+            else{
+                alert('Added expense!');
+                prepareExpenseBox();
+            }
         }
     };
 
     const handleUnequalSplit = async () => {
-        let rows;
-        if (unequalType == '$'){
-            rows = unequalSplitters.map(item => ({
-                groupid : groupid, 
-                lender : lender,
-                borrower : item.username,
-                category: expenseCategory,
-                cost : item.value,
-                comments : comments
-            }))
-        }
+        const addFr = window.confirm('Add this expense? It cannot be modified later.')
 
-        else {
-            rows = unequalSplitters.map(item => ({
-                groupid : groupid, 
-                lender : lender,
-                borrower : item.username,
-                category: expenseCategory,
-                cost : Math.round(item.value / 100 * expenseAmount, 2),
-                comments : comments
-            }))
-        }
+        if (addFr){
+            let rows;
+            if (unequalType == '$'){
+                rows = unequalSplitters.map(item => ({
+                    groupid : groupid, 
+                    lender : lender,
+                    borrower : item.username,
+                    category: expenseCategory,
+                    cost : item.value,
+                    comments : comments != '' ? comments : expenseCategory
+                }))
+            }
 
-        const { error } = await supabase.from('groupexpenses').insert(rows);
-        if (error) alert('Failed to add expense.');
-        else{
-            alert('Added expense!');
-            prepareExpenseBox();
-        }        
+            else {
+                rows = unequalSplitters.map(item => ({
+                    groupid : groupid, 
+                    lender : lender,
+                    borrower : item.username,
+                    category: expenseCategory,
+                    cost : Math.round(item.value / 100 * expenseAmount, 2),
+                    comments : comments != '' ? comments : expenseCategory
+                }))
+            }
+
+            const { error } = await supabase.from('groupexpenses').insert(rows);
+            if (error) alert('Failed to add expense.');
+            else{
+                alert('Added expense!');
+                prepareExpenseBox();
+            }
+        }
     };
 
     const prepareExpenseBox = async () => {
@@ -82,6 +90,8 @@ export default function GroupExpensePage() {
         setUnequalSplitters([]);
         setSplitType('equal');
         setUnequalType('');
+        setComments('');
+        setLender('');
 
         // Fetch categories for this group
         const { data: cats } = await supabase
