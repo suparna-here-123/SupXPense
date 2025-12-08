@@ -34,10 +34,10 @@ export default function DashboardClient({ username, userId, otherUsers }) {
     }
 
     const { error } = await supabase.from('personalexpenses').insert({
-      username,
+      username: username,
       expyear: currentYear,
       expmonth: currentMonth,
-      category,
+      category: category,
       amount: parseFloat(amount),
       comments: persExpComments,
     });
@@ -114,7 +114,8 @@ export default function DashboardClient({ username, userId, otherUsers }) {
           <label className="form-control w-full mb-3">
             <span className="label-text">Category</span>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="select select-bordered w-full mt-1">
-                {defaultCats.map(item => (
+              <option value="">Select category</option>
+              {defaultCats.map(item => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
@@ -160,6 +161,7 @@ export default function DashboardClient({ username, userId, otherUsers }) {
           <label className="form-control w-full mb-3">
             <span className="label-text">Category</span>
             <select value={loanCategory} onChange={(e) => setLoanCategory(e.target.value)} className="select select-bordered w-full mt-1">
+              <option value="">Select category</option>
                 {defaultCats.map(item => (
                 <option key={item} value={item}>{item}</option>
               ))}
