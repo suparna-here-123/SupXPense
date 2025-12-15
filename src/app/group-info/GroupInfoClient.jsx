@@ -72,19 +72,16 @@ export default function GroupInfoClient({ groupid, groupname, groupExpenses, tra
 
     const settleUp = async () => {
       // 1. Add the balance to borrower's personal expense under category 'Group'
-      const row = {
-                    username : settleUpWith.borrower,
-                    expyear : currentYear,
-                    expmonth : currentMonth,
-                    category : 'Debt',
-                    amount : settleUpWith.balance,
-                    comments : groupname
-     };
       const { addError } = await supabase
                           .from('personalexpenses')
-                          .insert(row);
-     console.log(row);
-     console.log(addError);
+                          .insert({
+                              username : settleUpWith.borrower,
+                              expyear : currentYear,
+                              expmonth : currentMonth,
+                              category : 'Debt',
+                              amount : settleUpWith.balance,
+                              comments : groupname
+     })
      if (addError) {
       alert('Error settling up.')
       setSettleUpWith([]);
@@ -100,7 +97,6 @@ export default function GroupInfoClient({ groupid, groupname, groupExpenses, tra
                           borrower : settleUpWith.borrower,
                         })
     
-                        console.log(delError);
     if (delError){
       alert('Error settling up.')
       setSettleUpWith([]);
