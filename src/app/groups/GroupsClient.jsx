@@ -301,7 +301,7 @@ export default function GroupsClient({ username, initialGroups }) {
                         <div className="card bg-base-100 shadow-md">
                             <div className="card-body p-4">
                                 <h3 className="card-title mb-2">{group.groupname}</h3>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     <button
                                         className="btn btn-secondary"
                                         onClick={() => addMembersToGroup(group.groupid)}>

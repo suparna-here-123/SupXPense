@@ -35,9 +35,8 @@ export default function GroupInfoClient({ groupid, groupname, groupExpenses, tra
       for (let i = 0; i < transactors.length; i++) {
         const transactor1 = transactors[i];
 
-        for (let j = 1; j < transactors.length; j++) {
+        for (let j = i + 1; j < transactors.length; j++) {
           const transactor2 = transactors[j];
-
           // 3) Total lent by transactor1 to transactor2
           const one_lent_two = groupExpenses
             .filter(exp => exp.lender === transactor1 && exp.borrower === transactor2)
@@ -107,7 +106,6 @@ export default function GroupInfoClient({ groupid, groupname, groupExpenses, tra
     useEffect(() => {
         getIndivContrib();
         calculateBalances();
-        console.log('balances', groupBalances);
     }, [groupExpenses, transactors])
     
     // Show individual spendings (DaisyUI-styled, colored)

@@ -83,7 +83,6 @@ export default function GroupExpensePage() {
     };
 
     const prepareExpenseBox = async () => {
-        if (!groupid) console.log('no groupid')
         setExpenseAmount('');
         setExpenseCategory('');
         setequalSplitters([]);
