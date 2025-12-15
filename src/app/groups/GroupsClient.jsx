@@ -39,19 +39,6 @@ export default function GroupsClient({ username, initialGroups }) {
     setCategories(categories.filter(c => c !== cat));
   };
 
-  const deleteGroup = async (groupID) => {
-    const isConfirmed = window.confirm(`Are you sure you want to delete this group? This action cannot be undone.`);
-    if (isConfirmed){
-        const response = await supabase
-                        .from('groups')
-                        .delete()
-                        .eq('groupid', groupID);
-        alert('Group deleted!');
-        window.location.reload();
-    }
-    
-  };  
-
   // ✅ Function: Create group (writes to DB)
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) return;
@@ -250,7 +237,7 @@ export default function GroupsClient({ username, initialGroups }) {
                 </dialog>
             )}
 
-        <h1 className="text-2xl font-bold mb-4">My Groups {username} </h1>
+        <h1 className="text-2xl font-bold mb-4">My Groups  </h1>
         <button
             className="btn btn-primary mb-6"
             onClick={() => {
@@ -316,12 +303,7 @@ export default function GroupsClient({ username, initialGroups }) {
                                         className="btn btn-info"
                                         onClick={() => router.push(`/group-info?groupid=${group.groupid}&groupname=${group.groupname}`)}>
                                         Info
-                                    </button>
-                                    <button
-                                        className="btn btn-error"
-                                        onClick={() => deleteGroup(group.groupid)}>
-                                        Delete Group
-                                    </button>                                                                  
+                                    </button>                                                          
                                 </div>
                             </div>
                         </div>
